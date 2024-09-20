@@ -1,0 +1,20 @@
+<div class="student-form">
+  <div class="form-group">
+    <%= f.label :name, class: 'form-label' do %>
+      Name <span class="text-danger">*</span>
+    <% end %>
+    <%= f.text_field :name, class: 'form-control', required: true, pattern: "[A-Z\\s]{3,30}", title: "Enter between 3 to 30 characters", maxlength: 30, oninput: "this.value = this.value.toUpperCase();" %>
+  </div>
+  <div class="form-group">
+    <%= f.label :subject, class: 'form-label' do %>
+      Subject <span class="text-danger">*</span>
+    <% end %>
+    <%= f.text_field :subject, class: 'form-control', required: true, pattern: "[A-Z\\s]{3,30}", title: "Enter between 3 to 20 characters", maxlength: 20, oninput: "this.value = this.value.toUpperCase();" %>
+  </div>
+  <div class="form-group">
+    <%= f.label :marks, class: 'form-label' do %>
+      Marks <span class="text-danger">*</span>
+    <% end %>
+    <%= f.number_field :marks, class: 'form-control', min: 0, max: 100, required: true %>
+  </div>
+</div>

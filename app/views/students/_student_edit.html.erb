@@ -1,0 +1,21 @@
+<div class="modal-dialog modal-dialog-centered">
+  <div class="modal-content">
+    <div class="modal-header" style="margin: 0px 0px 10px 20px; display: flex;">
+      <h4 class="modal-title">Edit Student</h4>
+      <span style="margin-left: auto; cursor: pointer;" onclick="modalClose('editModal')">
+        <i class="fa-solid fa-xmark fa-2xl"></i>
+      </span>
+    </div>
+    <div class="modal-body">
+      <div class="container" style="max-width: 550px;">
+        <%= form_with url: '', html: { class: 'form-horizontal', id: 'editForm', onsubmit: 'event.preventDefault(); handleFormSubmit(this, "PATCH", "editModal");' } do |f| %>
+          <%= render 'student_main', f: f %>
+          <div class="actions">
+            <%= f.button "Cancel", class: "btn btn-danger", type: "button", onclick: "modalClose('editModal')", style: "padding: 10px 20px;" %>
+            <%= f.submit "Update", class: "btn btn-success", style: "padding: 10px 30px;" %>
+          </div>
+        <% end %>  
+      </div>
+    </div>
+  </div>
+</div>

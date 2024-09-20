@@ -1,0 +1,27 @@
+<div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+        <div class="modal-header" style="margin: 0px 0px 10px 20px;">
+            <div style="display: flex">
+                <h5 class="modal-title">Upload Student details</h5>
+                <span style="margin-left: auto; cursor: pointer;" onclick="modalClose('uploadModal')">
+                    <i class="fa-solid fa-xmark fa-2xl"></i>
+                </span>
+            </div>
+            <span style="font-size: 13px; color: red;">(Format of File : students.csv)</span>
+        </div>
+        <div class="modal-body">
+            <div style="margin: 0px 0px 10px 20px;"> 
+                <label for="upload_file">Select File<span class="text-danger">*</span> :</label><br />
+                <input type="file" id="upload_datafile" multiple name="upload[datafile]" accept=".csv">
+            </div>
+            <div style="margin-top: 44px;"> 
+                <button id="uploadButton" class="btn btn-success" style="margin-right: 10px;">Upload</button>
+                <button type="button" class="btn btn-danger" style="margin-left: 10px;" onclick="modalClose('uploadModal')">Close</button>
+            </div>
+            
+            <div style="margin: 0px 0px 10px 20px;">
+                <a href="sample_students.csv" download class="edit-profile-link">Download Sample CSV File</a>
+            </div>
+        </div>
+    </div>
+</div>

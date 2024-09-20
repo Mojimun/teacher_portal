@@ -1,0 +1,263 @@
+<body style="background-color: #fff;">
+    <span style="float: right; margin-right: 10px;">
+        Welcome: <%= current_user.email %> | <%= link_to destroy_user_session_path, method: :delete do %>
+        Logout
+      <% end %>
+    </span>
+    <div style="margin: 10px 5px; display: flex;">
+        <div style="display: flex; margin-right: 15px;">
+            <button class="btn btn-primary" onclick="onBtnExport()"><i class="fa-solid fa-download fa-xs"></i> Export</button>
+            <button class="btn btn-default" onclick="onBtnUpload()"><i class="fa-solid fa-upload fa-xs"></i> Upload</button>
+            <button class="btn btn-success" onclick="onBtnAdd()"><i class="fa-solid fa-user-plus fa-xs"></i> Add</button>
+            <button class="btn btn-primary" onclick="onBtnEdit()"><i class="fa-solid fa-user-edit fa-xs"></i> Edit</button>
+            <button class="btn btn-danger" onclick="batchDelete()"><i class="fa-solid fa-user-minus fa-xs"></i> Delete</button>
+            <div class="input-group rounded" style="margin-top: 20px; display: flex;">
+                <input type="search" class="form-control rounded" placeholder="Search in .." onkeyup="handleSearchChange(this.value)" />
+                <span class="input-group-text border-0"><i class="fas fa-search searchbar"></i></span>
+            </div>
+        </div>
+    </div>
+    <div id="loader" class="overlay display-none">
+        <img class="img" src="images/loader.gif" />
+    </div>
+    <div>
+        <div id="agGrid" style="height: 450px; width: 100%;" class="ag-theme-balham"></div>
+    </div>
+    <div id="uploadModal" class="modal fade">
+        <%= render partial: 'upload_student_csv_list' %>        
+    </div>
+    <div id="addModal" class="modal fade">
+        <%= render partial: 'student_new' %>        
+    </div>
+    <div id="editModal" class="modal fade">
+        <%= render partial: 'student_edit' %>        
+    </div>
+</body>
+
+<script>
+    var columnDefs = [
+        { headerName: "", field: "", width: 60, checkboxSelection: true, headerCheckboxSelection: true, cellStyle: { 'text-align':'center','top': '2px' } },
+        { headerName: "Name", field: "name", cellStyle: { 'font-weight': 'bold', 'color': '#666666', 'padding-top': '2px', 'font-size': '15px' } },
+        { headerName: "Subject", field: "subject", cellStyle: { 'font-weight': 'bold', 'color': '#666666', 'padding-top': '2px', 'font-size': '15px' } },
+        { headerName: "Marks", field: "marks", cellStyle: { 'font-weight': 'bold', 'color': '#666666', 'padding-top': '2px', 'font-size': '15px' } }
+    ];
+
+    var gridOptions = {
+        columnDefs: columnDefs,
+        rowData: null,
+        defaultColDef: {
+            sortable: true,
+            filter: true,
+        },
+        rowSelection: 'multiple',
+        headerHeight: 35,
+        rowHeight: 30,
+        pagination: true,
+        suppressExcelExport: true,
+        suppressRowClickSelection: true,
+        paginationPageSize: 25,
+        onRowClicked: function (event) {
+            const node = event.node;
+            node.setSelected(!node.isSelected());
+        },
+    };
+
+    function onBtnExport() {
+        const columnsToInclude = ['name', 'subject', 'marks'];
+        const filenameWithTimestamp = `student_data_${new Date().toISOString().replace(/:/g, '_').replace(/\..+/, '').replace('T', '_')}.csv`;
+        gridOptions.api.exportDataAsCsv({
+            columnKeys: columnsToInclude,
+            fileName: filenameWithTimestamp
+        });
+    }
+
+    function get_grid_load() {
+        createNewDatasource();
+    }
+
+    $(document).ready(function () {
+        get_grid_load();
+        new agGrid.Grid(document.querySelector('#agGrid'), gridOptions);
+    });
+
+    function createNewDatasource(search_str = '') {
+        $('#loader').removeClass('display-none');
+        $.ajax({
+            type: "get",
+            url: "/students/get_all_student_list",
+            data: { search: search_str },
+            success: function (msg) {
+                gridOptions.api.setRowData(msg);
+            },
+            error: function () {
+                console.error('Error fetching data');
+            },
+            complete: function () {
+                $('#loader').addClass('display-none');
+            }
+        });
+    }
+
+    function batchDelete() {
+        const selected_ids = get_selected_row_ids();
+        if (selected_ids.length > 0) {
+            handleClickDelete(selected_ids);
+        } else {
+            alert('Please select at least one student');
+        }
+    }
+
+    function handleClickDelete(ids) {
+        Swal.fire({
+            title: 'Are you sure?',
+            text: 'You won\'t be able to revert this!',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes, delete it!'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                $('#loader').removeClass('display-none');
+                $.ajax({
+                    type: 'delete',
+                    url: '/students/delete_student',
+                    data: { ids: ids },
+                    headers: {
+                        'X-CSRF-TOKEN': '<%= form_authenticity_token %>'
+                    },
+                    success: function (data) {
+                        Swal.fire(
+                            data.message === 'Success' ? 'Deleted!' : 'Error!',
+                            data.message === 'Success' ? 'Student(s) have been deleted.' : 'Student(s) not found.',
+                            data.message === 'Success' ? 'success' : 'warning'
+                        );
+                        get_grid_load();
+                    },
+                    error: function () {
+                        console.error('Error deleting student(s)');
+                    },
+                    complete: function () {
+                        $('#loader').addClass('display-none');
+                    }
+                });
+            }
+        });
+    }
+
+    function get_selected_row_ids() {
+        const sel_rows = [];
+        gridOptions.api.forEachNodeAfterFilterAndSort(node => {
+            if (node.selected && node.data) {
+                sel_rows.push(node.data.id);
+            }
+        });
+        return sel_rows;
+    }
+
+    function modalClose(id) {
+        $(`#${id}`).modal('hide');
+    }
+
+    function onBtnUpload() {
+        $('#upload_datafile').val('');
+        $('#uploadModal').modal('show');
+    }
+
+    $('#uploadButton').click(function () {
+        const fileInput = document.querySelector('#upload_datafile');
+        const file = fileInput.files[0];
+        if (!file) {
+            alert('Please select a CSV file.');
+            return;
+        }
+        const formData = new FormData();
+        formData.append('csv_file', file);
+        $.ajax({
+            type: 'POST',
+            url: '/students/save_mass_data_upload',
+            data: formData,
+            processData: false,
+            contentType: false,
+            headers: {
+                'X-CSRF-TOKEN': '<%= form_authenticity_token %>'
+            },
+            success: function (response) {
+                alert(response);
+                $('#uploadModal').modal('hide');
+                get_grid_load();
+            },
+            error: function (xhr) {
+                console.error(xhr.responseText);
+            }
+        });
+    });
+
+    function onBtnAdd() {
+        $('#addModal').modal('show');
+    }
+
+    function onBtnEdit() {
+        const selected_id = get_selected_row_ids();
+        if (selected_id.length === 1) {
+            handleClickEdit(selected_id[0]);
+        } else {
+            alert('Please select one student');
+        }
+    }
+
+    function handleClickEdit(id) {
+        $.ajax({
+            type: 'get',
+            url: '/students/get_student_data',
+            data: { id: id },
+            success: function (data) {
+                $('#editForm').attr('action', `/students/${data.id}`).attr('method', 'patch');
+                $('#name').val(data.name.toUpperCase()).attr('name', 'student[name]');
+                $('#subject').val(data.subject.toUpperCase()).attr('name', 'student[subject]');
+                $('#marks').val(data.marks).attr('name', 'student[marks]');
+                $('#editModal').modal('show');
+            },
+            error: function (xhr) {
+                console.error(xhr.responseText);
+            }
+        });
+    }
+
+    function handleSearchChange(value) {
+        createNewDatasource(value || '');
+    }
+
+    function handleFormSubmit(formElement, method, modal_id) {
+        const formData = new FormData(formElement);
+        const csrfToken = $('meta[name="csrf-token"]').attr('content');
+
+        fetch(formElement.action, {
+            method: method,
+            headers: {
+                'X-CSRF-Token': csrfToken,
+                'Accept': 'application/json',
+            },
+            body: formData,
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .then(data => {
+            alert(data.success ? data.message : 'Action failed.');
+            if (data.success) {
+                $(`#${modal_id}`).modal('hide');
+                get_grid_load();
+            }
+        })
+        .catch(error => {
+            get_grid_load();
+            console.error('Error:', error);
+            alert('An error occurred.');
+        });
+    }
+
+</script>

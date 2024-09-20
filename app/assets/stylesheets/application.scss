@@ -1,0 +1,125 @@
+body {
+  font-family: Arial, sans-serif;
+  background-color: #f2f2f2;
+  color: #a8abba;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+.ag-layout-normal.ag-root-wrapper-body {
+  width: auto;
+}
+
+.ag-theme-balham .ag-cell-label-container {
+  height: 100%;
+}
+
+.ag-theme-balham .ag-cell {
+  line-height: 26px;
+  padding-left: 12px;
+  padding-right: 12px;
+  border: 1px solid transparent;
+  padding-left: 0px;
+  padding-right: 11px;
+}
+
+.ag-theme-balham {
+  margin: 0px 40px 10px 5px !important;
+}
+
+.ag-theme-balham .ag-header-cell,
+.ag-theme-balham .ag-header-group-cell {
+  line-height: 20px !important;
+}
+
+.ag-theme-balham .ag-ltr .ag-cell-focus {
+  border: none;
+}
+
+.ag-theme-balham .ag-row-hover{
+  background-color: #b7e4ff;
+}
+
+.ag-header {
+  position: inherit;
+}
+
+.ag-theme-balham .ag-header-cell-label .ag-header-cell-text {
+  width: 100%;
+  margin-top: 15px;
+}
+
+.ag-filter {
+  position: inherit;
+  overflow: hidden;
+}
+
+
+.display-none {
+  display: none !important;
+}
+
+.overlay {
+  position: fixed;
+  margin: 0px;
+  padding: 0px;
+  right: 0px;
+  top: 0px;
+  width: 100%;
+  height: 100%;
+  z-index: 9999;
+  opacity: 0.8;
+}
+
+.btn{
+  margin: 20px;
+}
+
+.searchbar {
+font-size: 16px;
+margin-left: -23px;
+z-index: 999;
+position: absolute;
+margin-top: 7px;
+}
+
+h2 {
+  font-size: 24px;
+  margin-bottom: 20px;
+  color: #707683;
+}
+
+.field {
+  margin-bottom: 10px;
+}
+
+label {
+  display: block;
+  font-weight: bold;
+}
+
+input[type="text"],
+input[type="email"],
+input[type="number"],
+select,
+input[type="password"] {
+  width: 90%;
+  padding: 7px;
+  margin-top: 5px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  color: #243656;
+}
+
+.actions {
+  text-align: center;
+  margin-top: 10px;
+}
+
+@media (max-width: 768px) {
+  .container {
+      flex-direction: column;
+  }
+}
